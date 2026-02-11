@@ -6,11 +6,12 @@ import {
   emailLogin,
   emailRegister,
 } from "../controllers/auth.controller";
+import { validateRegistration } from "../middlewares/validation";
 const router = express.Router();
 
 router.route("/google/oauth").get(googleAuth);
 
-router.route("/register").post(emailRegister);
+router.route("/register").post(validateRegistration, emailRegister);
 
 router.route("/login").post(emailLogin);
 

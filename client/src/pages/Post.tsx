@@ -37,15 +37,6 @@ export default function Post() {
   const navigate = useNavigate();
   const { handleToast } = useAppContext();
 
-  // Calculate reading time
-  const readingTime = useMemo(() => {
-    if (data?.data?.post?.markdown) {
-      const minutes = calculateReadingTime(data.data.post.markdown);
-      return formatReadingTime(minutes);
-    }
-    return "4 min read";
-  }, [data]);
-
   const { isLoading, error, data } = useQuery({
     queryFn: () => httpRequest.get(`${url}/post/${id}`),
     queryKey: ["blog", id],
@@ -55,6 +46,15 @@ export default function Post() {
       setTurnBlack(data.data.post.votes.includes(user?._id));
     },
   });
+
+  // Calculate reading time - moved after data is available
+  const readingTime = useMemo(() => {
+    if (data?.data?.post?.markdown) {
+      const minutes = calculateReadingTime(data.data.post.markdown);
+      return formatReadingTime(minutes);
+    }
+    return "4 min read";
+  }, [data]);
 
   const { refetch: clap } = useQuery({
     queryFn: () => httpRequest.patch(`${url}/post/vote/${id}`),
@@ -83,6 +83,10 @@ export default function Post() {
     enabled: false,
     onSuccess: (res) => {
       setComments(res.data);
+    },
+    onError: (err) => {
+      console.error("Failed to fetch comments:", err);
+      // Don't show error to user, just log it
     },
   });
 
@@ -174,6 +178,10 @@ export default function Post() {
   if (error) return <p>Something went wrong ...</p>;
   if (isLoading) return <p>Loading ...</p>;
 
+  // Check if user needs to sign in to read full article
+  const needsAuth = !isAuthenticated;
+  const showPaywall = needsAuth && data?.data?.post?.markdown?.length > 500;
+
   return (
     <div
       className="container"
@@ -197,6 +205,7 @@ export default function Post() {
           style={{
             width: "90%",
             marginRight: "auto",
+            position: "relative",
           }}
         >
           {data?.data && (
@@ -227,8 +236,105 @@ export default function Post() {
           >
             {data?.data?.post.title}
           </h1>
-          <div className="markdown">
-            <Markdown>{data?.data?.post?.markdown}</Markdown>
+          <div className="markdown" style={{ position: "relative" }}>
+            <Markdown>
+              {showPaywall
+                ? data?.data?.post?.markdown.substring(0, 500) + "..."
+                : data?.data?.post?.markdown}
+            </Markdown>
+            
+            {/* Paywall Overlay */}
+            {showPaywall && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: "300px",
+                  background:
+                    "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 40%, rgba(255,255,255,1) 70%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  paddingBottom: "40px",
+                }}
+              >
+                <div
+                  style={{
+                    textAlign: "center",
+                    maxWidth: "400px",
+                    padding: "20px",
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: "Poppins",
+                      fontSize: "24px",
+                      marginBottom: "12px",
+                      color: "#292929",
+                    }}
+                  >
+                    Sign in to read the full story
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "Roboto",
+                      fontSize: "15px",
+                      color: "#757575",
+                      marginBottom: "24px",
+                      lineHeight: "1.5",
+                    }}
+                  >
+                    Become a member to get unlimited access to all stories on Medium
+                  </p>
+                  <button
+                    onClick={() => navigate("/signin/in")}
+                    style={{
+                      padding: "12px 32px",
+                      backgroundColor: "#1a8917",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "24px",
+                      fontSize: "15px",
+                      fontWeight: "500",
+                      cursor: "pointer",
+                      fontFamily: "Roboto",
+                      transition: "background-color 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#168714";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "#1a8917";
+                    }}
+                  >
+                    Sign in
+                  </button>
+                  <p
+                    style={{
+                      fontFamily: "Roboto",
+                      fontSize: "13px",
+                      color: "#757575",
+                      marginTop: "16px",
+                    }}
+                  >
+                    Not a member?{" "}
+                    <span
+                      onClick={() => navigate("/signin/new")}
+                      style={{
+                        color: "#1a8917",
+                        cursor: "pointer",
+                        fontWeight: "500",
+                      }}
+                    >
+                      Sign up
+                    </span>
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
           <div
             className="bottomScreen"

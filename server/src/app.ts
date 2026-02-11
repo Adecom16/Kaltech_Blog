@@ -6,11 +6,13 @@ import postRouter from "./routers/post";
 import authRouter from "./routers/auth";
 import userRouter from "./routers/user";
 import searchRouter from "./routers/search";
+import uploadRouter from "./routers/upload";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import User from "./models/user";
+import path from "path";
 const server = createServer(app);
 
 const isProd = !env.DEV;
@@ -20,6 +22,9 @@ if (isProd) {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 declare global {
   namespace Express {
@@ -90,6 +95,7 @@ app.use("/post", postRouter);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/search", searchRouter);
+app.use("/upload", uploadRouter);
 
 app.use(errorHandler);
 

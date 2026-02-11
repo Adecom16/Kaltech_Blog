@@ -13,26 +13,67 @@ import UnAuthHome from "./UnAuthHome";
 
 export default function Home() {
   const { tag } = useParams();
-  const { isAuthenticated } = useAuth();
-  return !isAuthenticated && !tag ? (
-    <UnAuthHome />
-  ) : (
-    <HomeContainer tag={tag as string} />
-  );
+  const { isAuthenticated, user } = useAuth();
+  
+  // Debug logging
+  console.log('Home - isAuthenticated:', isAuthenticated);
+  console.log('Home - user:', user);
+  console.log('Home - tag:', tag);
+  
+  // Always show HomeContainer - it will fetch public or authenticated posts
+  return <HomeContainer tag={tag as string} />;
 }
 
 function HomeContainer({ tag }: { tag: string }) {
   const { isAuthenticated } = useAuth();
   const [posts, setposts] = useState<Array<any>>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   document.title = "Medium";
+  
+  // Authenticated users - personalized feed
   useQuery({
-    queryFn: () => httpRequest.get(`${url}/post/home`),
-    queryKey: ["home", "no"],
-    enabled: tag == undefined,
+    queryFn: () => {
+      console.log('Fetching home posts (authenticated)...');
+      console.log('Access token:', localStorage.getItem('access_token'));
+      return httpRequest.get(`${url}/post/home`);
+    },
+    queryKey: ["home", "authenticated"],
+    enabled: tag == undefined && isAuthenticated,
     onSuccess: (data) => {
+      console.log('Home posts loaded:', data.data);
       setposts(data.data);
+      setLoading(false);
+    },
+    onError: (err: any) => {
+      console.error("Failed to fetch posts:", err);
+      console.error("Error response:", err.response);
+      setError(err.response?.data?.message || "Failed to load posts");
+      setLoading(false);
     },
   });
+  
+  // Unauthenticated users - public feed
+  useQuery({
+    queryFn: () => {
+      console.log('Fetching public posts (unauthenticated)...');
+      return httpRequest.get(`${url}/post/public`);
+    },
+    queryKey: ["home", "public"],
+    enabled: tag == undefined && !isAuthenticated,
+    onSuccess: (data) => {
+      console.log('Public posts loaded:', data.data);
+      setposts(data.data);
+      setLoading(false);
+    },
+    onError: (err: any) => {
+      console.error("Failed to fetch public posts:", err);
+      setError(err.response?.data?.message || "Failed to load posts");
+      setLoading(false);
+    },
+  });
+  
   useQuery({
     queryFn: () =>
       httpRequest.get(
@@ -42,6 +83,12 @@ function HomeContainer({ tag }: { tag: string }) {
     enabled: tag != undefined,
     onSuccess: (data) => {
       setposts(data.data);
+      setLoading(false);
+    },
+    onError: (err: any) => {
+      console.error("Failed to fetch posts:", err);
+      setError(err.response?.data?.message || "Failed to load posts");
+      setLoading(false);
     },
   });
 
@@ -82,25 +129,45 @@ function HomeContainer({ tag }: { tag: string }) {
             marginTop: !isAuthenticated ? "22px" : 0,
           }}
         >
-          {posts.map((item) => {
-            return (
-              <Post
-                showUserList={true}
-                filterPost={filterPost}
-                filterAuthorPost={filterAuthorPost}
-                postId={item.post._id}
-                timestamp={item.post.createdAt}
-                title={item.post.title}
-                username={item.user.name}
-                userId={item.user._id}
-                image={item.post.image}
-                tag={item.post.tags.at(0)}
-                userImage={item.user.avatar}
-                key={item.post._id}
-                summary={item.post.summary}
-              />
-            );
-          })}
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "40px", color: "#757575" }}>
+              <p>Loading posts...</p>
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: "center", padding: "40px", color: "#d32f2f" }}>
+              <p>{error}</p>
+              <p style={{ fontSize: "14px", marginTop: "10px" }}>
+                Please check your connection and try refreshing the page.
+              </p>
+            </div>
+          ) : posts.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px", color: "#757575" }}>
+              <h3 style={{ marginBottom: "16px" }}>No posts yet</h3>
+              <p style={{ fontSize: "15px", lineHeight: "1.6" }}>
+                Be the first to share your story! Click the "Write" button to create your first post.
+              </p>
+            </div>
+          ) : (
+            posts.map((item) => {
+              return (
+                <Post
+                  showUserList={true}
+                  filterPost={filterPost}
+                  filterAuthorPost={filterAuthorPost}
+                  postId={item.post._id}
+                  timestamp={item.post.createdAt}
+                  title={item.post.title}
+                  username={item.user.name}
+                  userId={item.user._id}
+                  image={item.post.image}
+                  tag={item.post.tags.at(0)}
+                  userImage={item.user.avatar}
+                  key={item.post._id}
+                  summary={item.post.summary}
+                />
+              );
+            })
+          )}
         </div>
       </div>
       <div
