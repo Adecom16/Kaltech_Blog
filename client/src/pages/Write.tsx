@@ -12,7 +12,7 @@ import { httpRequest } from "../interceptor/axiosInterceptor";
 import { url } from "../baseUrl";
 import { useNavigate, useParams } from "react-router-dom";
 import useLocalStorage from "../hooks/useLocalStorage";
-import Markdown from "../components/Markdown";
+import TipTapEditor from "../components/TipTapEditor";
 
 const INITAIL_POST_DATA = { title: "", markdown: "", tags: "" };
 
@@ -34,9 +34,6 @@ export default function Write() {
   const [previewUrl, setPreviewUrl] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [showToolbar, setShowToolbar] = useState(false);
-  const [toolbarPosition, setToolbarPosition] = useState({ top: 0, left: 0 });
-  const [showPreview, setShowPreview] = useState(true); // Show live preview
   
   // Undo/Redo state
   const [history, setHistory] = useState<string[]>([""]);
@@ -53,71 +50,10 @@ export default function Write() {
     hideNavbar(true);
     document.title = "New story -Medium";
     
-    // Add keyboard shortcuts for undo/redo
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') {
-        e.preventDefault();
-        handleUndo();
-      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
-        e.preventDefault();
-        handleRedo();
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    
     return () => {
       hideNavbar(false);
-      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [historyIndex, history]);
-
-  const handleUndo = () => {
-    if (historyIndex > 0) {
-      const newIndex = historyIndex - 1;
-      const previousContent = history[newIndex];
-      setHistoryIndex(newIndex);
-      setIsUndoRedo(true);
-      setPost((prev) => ({ ...prev, markdown: previousContent }));
-      setLocalDraft((prev) => ({ ...prev, markdown: previousContent }));
-      handleToast && handleToast("Undo");
-    }
-  };
-
-  const handleRedo = () => {
-    if (historyIndex < history.length - 1) {
-      const newIndex = historyIndex + 1;
-      const nextContent = history[newIndex];
-      setHistoryIndex(newIndex);
-      setIsUndoRedo(true);
-      setPost((prev) => ({ ...prev, markdown: nextContent }));
-      setLocalDraft((prev) => ({ ...prev, markdown: nextContent }));
-      handleToast && handleToast("Redo");
-    }
-  };
-
-  const addToHistory = (content: string) => {
-    if (isUndoRedo) {
-      setIsUndoRedo(false);
-      return;
-    }
-    
-    // Don't add if content is the same as current
-    if (history[historyIndex] === content) return;
-    
-    // Remove any history after current index (when typing after undo)
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(content);
-    
-    // Limit history to last 50 states
-    if (newHistory.length > 50) {
-      newHistory.shift();
-    } else {
-      setHistoryIndex(historyIndex + 1);
-    }
-    
-    setHistory(newHistory);
-  };
+  }, []);
 
   useEffect(() => {
     setPost(localDraft);
@@ -134,6 +70,9 @@ export default function Write() {
     queryKey: ["new", "blog", "post"],
     enabled: false,
     onSuccess(data) {
+      // Clear the draft after successful publish
+      setLocalDraft(INITAIL_POST_DATA);
+      setPost(INITAIL_POST_DATA);
       navigate(`/blog/${data.data._id}`);
     },
   });
@@ -162,6 +101,9 @@ export default function Write() {
     queryKey: ["blog", "post", "update", postId],
     enabled: false,
     onSuccess() {
+      // Clear the draft after successful update
+      setLocalDraft(INITAIL_POST_DATA);
+      setPost(INITAIL_POST_DATA);
       navigate(`/blog/${postId}`);
     },
   });
@@ -195,35 +137,7 @@ export default function Write() {
   };
 
   const handleInsertImage = () => {
-    if (imageUrl.trim()) {
-      // Use markdown image syntax instead of HTML for better compatibility
-      const imageMarkdown = `\n![image](${imageUrl})\n\n`;
-      const textarea = textareaRef.current;
-      if (textarea) {
-        const cursorPos = textarea.selectionStart;
-        const textBefore = post.markdown.substring(0, cursorPos);
-        const textAfter = post.markdown.substring(cursorPos);
-        const newMarkdown = textBefore + imageMarkdown + textAfter;
-        
-        setPost((prev) => ({ ...prev, markdown: newMarkdown }));
-        setLocalDraft((prev) => ({ ...prev, markdown: newMarkdown }));
-        
-        // Set cursor after image
-        setTimeout(() => {
-          textarea.focus();
-          textarea.selectionStart = textarea.selectionEnd = cursorPos + imageMarkdown.length;
-        }, 0);
-      } else {
-        setPost((prev) => ({ ...prev, markdown: prev.markdown + imageMarkdown }));
-        setLocalDraft((prev) => ({ ...prev, markdown: prev.markdown + imageMarkdown }));
-      }
-      setImageUrl("");
-      setPreviewUrl("");
-      setSelectedFile(null);
-      setShowImageDialog(false);
-      setShowToolbar(false);
-      handleToast && handleToast("Image inserted successfully");
-    }
+    // This function is no longer used with TipTap
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,127 +172,49 @@ export default function Write() {
     setUploadingImage(true);
     
     try {
-      // Convert to base64
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Url = reader.result as string;
-        
-        // Try to upload to free service (no API key needed)
-        try {
-          const formData = new FormData();
-          formData.append('image', selectedFile);
-          
-          // Using freeimage.host (no API key required)
-          const response = await fetch('https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5', {
-            method: 'POST',
-            body: formData,
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.image?.url) {
-              const imageUrl = data.image.url;
-              handleToast && handleToast("Image uploaded successfully");
-              insertImageAtCursor(imageUrl);
-              return;
-            }
-          }
-        } catch (uploadError) {
-          console.log('External upload failed, using base64');
-        }
-        
-        // Fallback: use base64 directly
-        handleToast && handleToast("Using local image");
-        insertImageAtCursor(base64Url);
-        
-        setUploadingImage(false);
-      };
+      const formData = new FormData();
+      formData.append('image', selectedFile);
       
-      reader.readAsDataURL(selectedFile);
-    } catch (error) {
+      // Upload to our backend
+      const response = await httpRequest.post(`${url}/upload/image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      if (response.data.success) {
+        const imageUrl = `${url}${response.data.url}`;
+        handleToast && handleToast("Image uploaded successfully");
+        insertImageAtCursor(imageUrl);
+      }
+    } catch (error: any) {
       console.error('Upload error:', error);
-      handleToast && handleToast("Upload failed");
+      handleToast && handleToast(error.response?.data?.message || "Upload failed");
+    } finally {
       setUploadingImage(false);
     }
   };
 
   const insertImageAtCursor = (imageUrl: string) => {
-    // Ensure the URL is valid
     if (!imageUrl || imageUrl.trim() === '') {
       handleToast && handleToast("Invalid image URL");
       return;
     }
     
-    const imageMarkdown = `\n![image](${imageUrl})\n\n`;
-    const textarea = textareaRef.current;
-    
-    if (textarea) {
-      const cursorPos = textarea.selectionStart;
-      const textBefore = post.markdown.substring(0, cursorPos);
-      const textAfter = post.markdown.substring(cursorPos);
-      const newMarkdown = textBefore + imageMarkdown + textAfter;
-      
-      setPost((prev) => ({ ...prev, markdown: newMarkdown }));
-      setLocalDraft((prev) => ({ ...prev, markdown: newMarkdown }));
-      
-      // Force preview mode to show the image
-      setTimeout(() => {
-        setShowPreview(true);
-      }, 100);
-    } else {
-      setPost((prev) => ({ ...prev, markdown: prev.markdown + imageMarkdown }));
-      setLocalDraft((prev) => ({ ...prev, markdown: prev.markdown + imageMarkdown }));
-      
-      // Force preview mode
-      setTimeout(() => {
-        setShowPreview(true);
-      }, 100);
+    // Use the global function to insert image into TipTap editor
+    if ((window as any).insertImageToEditor) {
+      (window as any).insertImageToEditor(imageUrl);
     }
     
     setImageUrl("");
     setPreviewUrl("");
     setSelectedFile(null);
     setShowImageDialog(false);
-    setShowToolbar(false);
+    handleToast && handleToast("Image inserted successfully");
   };
 
   const handleMoreMenu = () => {
     setShowImageDialog(true);
-  };
-
-  const handleTextareaClick = (e: React.MouseEvent<HTMLTextAreaElement>) => {
-    const textarea = e.currentTarget;
-    const rect = textarea.getBoundingClientRect();
-    const clickY = e.clientY - rect.top + textarea.scrollTop;
-    
-    // Show toolbar on left side at click position
-    setToolbarPosition({
-      top: clickY - 20,
-      left: -50,
-    });
-    setShowToolbar(true);
-  };
-
-  const handleTextareaFocus = () => {
-    // Show toolbar when textarea is focused
-    if (textareaRef.current) {
-      const textarea = textareaRef.current;
-      const rect = textarea.getBoundingClientRect();
-      setToolbarPosition({
-        top: 10,
-        left: -50,
-      });
-      setShowToolbar(true);
-    }
-  };
-
-  const handleTextareaBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    // Don't hide if clicking on toolbar
-    setTimeout(() => {
-      if (!document.activeElement?.closest('.floating-toolbar')) {
-        setShowToolbar(false);
-      }
-    }, 200);
   };
 
   return (
@@ -387,10 +223,6 @@ export default function Write() {
         buttonText={hasPostId ? "Save" : "Publish"}
         onClick={handleClickOpen}
         onMoreClick={() => setShowImageDialog(true)}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        canUndo={historyIndex > 0}
-        canRedo={historyIndex < history.length - 1}
         disabled={!(post.title.length > 6 && post.markdown.length > 15)}
       />
       <div
@@ -424,141 +256,16 @@ export default function Write() {
           }}
         />
         
-        {/* Content area with floating toolbar */}
-        <div style={{ width: "100%", position: "relative" }}>
-          {/* Floating Toolbar - Medium Style */}
-          {showToolbar && (
-            <div
-              className="floating-toolbar"
-              style={{
-                position: "absolute",
-                top: `${toolbarPosition.top}px`,
-                left: `${toolbarPosition.left}px`,
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-                zIndex: 1000,
-              }}
-            >
-              <button
-                onClick={() => setShowImageDialog(true)}
-                title="Add an image"
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "50%",
-                  border: "1px solid #e6e6e6",
-                  backgroundColor: "white",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "20px",
-                  color: "#757575",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                  transition: "all 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#f7f7f7";
-                  e.currentTarget.style.borderColor = "#757575";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "white";
-                  e.currentTarget.style.borderColor = "#e6e6e6";
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path
-                    d="M15 10H10V15H10C10 15 10 15 10 15C10 15 10 15 10 15H10V10H5V10C5 10 5 10 5 10C5 10 5 10 5 10H10V5H10C10 5 10 5 10 5C10 5 10 5 10 5H10V10H15Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2Z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                </svg>
-              </button>
-            </div>
-          )}
-          
-          {/* Live Preview - Shows rendered markdown with images */}
-          {showPreview && post.markdown.trim() ? (
-            <div
-              onClick={(e) => {
-                e.preventDefault();
-                setShowPreview(false);
-                setTimeout(() => {
-                  if (textareaRef.current) {
-                    textareaRef.current.focus();
-                    // Set cursor to end
-                    const length = textareaRef.current.value.length;
-                    textareaRef.current.setSelectionRange(length, length);
-                  }
-                }, 50);
-              }}
-              style={{
-                width: "100%",
-                fontSize: "20px",
-                minHeight: "200px",
-                cursor: "text",
-                fontFamily: "inherit",
-                lineHeight: "1.6",
-                padding: "4px 0",
-              }}
-            >
-              <Markdown>{post.markdown}</Markdown>
-              <div
-                style={{
-                  minHeight: "100px",
-                  cursor: "text",
-                  color: "#999",
-                  fontStyle: "italic",
-                  marginTop: "20px",
-                }}
-              >
-                Click to continue writing...
-              </div>
-            </div>
-          ) : (
-            <TextareaAutosize
-              ref={textareaRef}
-              autoFocus
-              onClick={handleTextareaClick}
-              onFocus={() => {
-                handleTextareaFocus();
-                setShowPreview(false);
-              }}
-              onBlur={(e) => {
-                handleTextareaBlur(e);
-                // Don't auto-preview while typing - only when clicking away
-              }}
-              onChange={(e) => {
-                setShowPreview(false); // Stay in edit mode while typing
-                const newContent = e.target.value;
-                setLocalDraft((prev) => ({ ...prev, markdown: newContent }));
-                setPost((prev) => {
-                  return { ...prev, markdown: newContent };
-                });
-                // Add to history with debounce
-                addToHistory(newContent);
-              }}
-              value={post.markdown}
-              className="hide_scroll"
-              placeholder="Tell your story..."
-              style={{
-                width: "100%",
-                fontSize: "20px",
-                border: "none",
-                outline: "transparent",
-                resize: "none",
-                paddingLeft: "0px",
-                fontFamily: "inherit",
-                lineHeight: "1.6",
-              }}
-            />
-          )}
-        </div>
+        {/* TipTap WYSIWYG Editor */}
+        <TipTapEditor
+          content={post.markdown}
+          onChange={(content) => {
+            setPost((prev) => ({ ...prev, markdown: content }));
+            setLocalDraft((prev) => ({ ...prev, markdown: content }));
+          }}
+          onImageClick={handleMoreMenu}
+        />
+        
         <Dialog
           fullScreen
           open={open}
@@ -733,72 +440,6 @@ export default function Write() {
                 )}
               </div>
             </div>
-
-            {/* Divider */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                margin: "20px 0",
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  height: "1px",
-                  backgroundColor: "#e6e6e6",
-                }}
-              />
-              <span
-                style={{
-                  padding: "0 12px",
-                  fontSize: "13px",
-                  color: "#757575",
-                  fontFamily: "Roboto",
-                }}
-              >
-                or paste a link
-              </span>
-              <div
-                style={{
-                  flex: 1,
-                  height: "1px",
-                  backgroundColor: "#e6e6e6",
-                }}
-              />
-            </div>
-            
-            {/* URL Input */}
-            <div style={{ marginBottom: "20px" }}>
-              <input
-                type="text"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="Paste an image link..."
-                style={{
-                  width: "100%",
-                  padding: "12px 14px",
-                  border: "1px solid #e6e6e6",
-                  borderRadius: "4px",
-                  fontSize: "15px",
-                  fontFamily: "Roboto",
-                  outline: "none",
-                  transition: "border-color 0.2s",
-                  boxSizing: "border-box",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#1a8917";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#e6e6e6";
-                }}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && imageUrl.trim()) {
-                    handleInsertImage();
-                  }
-                }}
-              />
-            </div>
             
             {/* Action Buttons */}
             <div
@@ -838,7 +479,7 @@ export default function Write() {
                 Cancel
               </button>
               
-              {selectedFile && !imageUrl ? (
+              {selectedFile ? (
                 <button
                   onClick={handleUploadImage}
                   disabled={uploadingImage}
@@ -857,36 +498,7 @@ export default function Write() {
                 >
                   {uploadingImage ? "Uploading..." : "Upload & Insert"}
                 </button>
-              ) : (
-                <button
-                  onClick={handleInsertImage}
-                  disabled={!imageUrl.trim()}
-                  style={{
-                    padding: "10px 24px",
-                    border: "none",
-                    borderRadius: "24px",
-                    background: imageUrl.trim() ? "#1a8917" : "#e6e6e6",
-                    color: imageUrl.trim() ? "white" : "#999",
-                    cursor: imageUrl.trim() ? "pointer" : "not-allowed",
-                    fontFamily: "Roboto",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (imageUrl.trim()) {
-                      e.currentTarget.style.backgroundColor = "#168714";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (imageUrl.trim()) {
-                      e.currentTarget.style.backgroundColor = "#1a8917";
-                    }
-                  }}
-                >
-                  Insert image
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
         </Dialog>

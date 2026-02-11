@@ -5,10 +5,10 @@ import AvatarMenu from "./AvatarMenu";
 type WriteNavType = {
   onClick(): void;
   onMoreClick(): void;
-  onUndo(): void;
-  onRedo(): void;
-  canUndo: boolean;
-  canRedo: boolean;
+  onUndo?(): void;
+  onRedo?(): void;
+  canUndo?: boolean;
+  canRedo?: boolean;
   disabled: boolean;
   buttonText: string;
 };
@@ -45,51 +45,53 @@ export default function WriteNavbar({
           gap: "18px",
         }}
       >
-        {/* Undo/Redo buttons */}
-        <div style={{ display: "flex", gap: "8px", marginRight: "8px" }}>
-          <button
-            onClick={onUndo}
-            disabled={!canUndo}
-            title="Undo (Ctrl+Z)"
-            style={{
-              background: "none",
-              border: "1px solid #e6e6e6",
-              borderRadius: "4px",
-              padding: "6px 10px",
-              cursor: canUndo ? "pointer" : "not-allowed",
-              opacity: canUndo ? 1 : 0.4,
-              display: "flex",
-              alignItems: "center",
-              transition: "all 0.2s",
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M3 7v6h6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          <button
-            onClick={onRedo}
-            disabled={!canRedo}
-            title="Redo (Ctrl+Y)"
-            style={{
-              background: "none",
-              border: "1px solid #e6e6e6",
-              borderRadius: "4px",
-              padding: "6px 10px",
-              cursor: canRedo ? "pointer" : "not-allowed",
-              opacity: canRedo ? 1 : 0.4,
-              display: "flex",
-              alignItems: "center",
-              transition: "all 0.2s",
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M21 7v6h-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
+        {/* Undo/Redo buttons - Only show if handlers are provided */}
+        {onUndo && onRedo && (
+          <div style={{ display: "flex", gap: "8px", marginRight: "8px" }}>
+            <button
+              onClick={onUndo}
+              disabled={!canUndo}
+              title="Undo (Ctrl+Z)"
+              style={{
+                background: "none",
+                border: "1px solid #e6e6e6",
+                borderRadius: "4px",
+                padding: "6px 10px",
+                cursor: canUndo ? "pointer" : "not-allowed",
+                opacity: canUndo ? 1 : 0.4,
+                display: "flex",
+                alignItems: "center",
+                transition: "all 0.2s",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 7v6h6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              onClick={onRedo}
+              disabled={!canRedo}
+              title="Redo (Ctrl+Y)"
+              style={{
+                background: "none",
+                border: "1px solid #e6e6e6",
+                borderRadius: "4px",
+                padding: "6px 10px",
+                cursor: canRedo ? "pointer" : "not-allowed",
+                opacity: canRedo ? 1 : 0.4,
+                display: "flex",
+                alignItems: "center",
+                transition: "all 0.2s",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 7v6h-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        )}
         
         {/* cbe4ca */}
         <button

@@ -9,6 +9,7 @@ import {
   getHomePost,
   getPost,
   getPostOfTopic,
+  getPublicPosts,
   getUserPost,
   ignoreAuthor,
   ignorePost,
@@ -27,6 +28,8 @@ router.route("/write").post(isAuthenticated, writePost);
 
 router.route("/home").get(isAuthenticated, getHomePost);
 
+router.route("/public").get(getPublicPosts);
+
 router.route("/explore").get(explorePost);
 
 router
@@ -39,7 +42,7 @@ router.route("/save/:postId").patch(isAuthenticated, savePost);
 
 router.route("/unsave/:postId").patch(isAuthenticated, unSavePost);
 
-router.route("/comments/:postId").get(isAuthenticated, getAllComments);
+router.route("/comments/:postId").get(getAllComments);
 
 router.route("/saved/:listName").get(isAuthenticated, getAllSavedFromList);
 

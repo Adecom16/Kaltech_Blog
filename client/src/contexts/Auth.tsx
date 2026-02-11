@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useState, useEffect } from "react";
 import { url } from "../baseUrl";
 import useLocalStorage, { clearLocalStorage } from "../hooks/useLocalStorage";
 import { httpRequest } from "../interceptor/axiosInterceptor";
@@ -28,9 +28,19 @@ type AuthProps = {
 
 export default function Auth({ children }: AuthProps) {
   const [user, setUser] = useLocalStorage<User | undefined>("user", undefined);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-    user != undefined
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    // Check both user and access_token on initial load
+    const hasUser = user != undefined;
+    const hasToken = !!localStorage.getItem("access_token");
+    return hasUser && hasToken;
+  });
+
+  // Update isAuthenticated when user changes
+  useEffect(() => {
+    const hasUser = user != undefined;
+    const hasToken = !!localStorage.getItem("access_token");
+    setIsAuthenticated(hasUser && hasToken);
+  }, [user]);
 
   const { refetch: logoutCall } = useQuery({
     queryFn: () =>

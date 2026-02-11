@@ -7,6 +7,12 @@ export const getUserPost = asyncHandler(async (req, res, next) => {
   res.send(await Post.find({ userId: req.params.userId }).sort({ _id: -1 }));
 });
 
+// Public endpoint - no authentication required
+export const getPublicPosts = asyncHandler(async (req, res, next) => {
+  const posts = await getPostsWithUser(Post.find({}).limit(20));
+  res.send(posts);
+});
+
 // todo pagination
 export const getHomePost = asyncHandler(async (req, res, next) => {
   const { userId } = req;

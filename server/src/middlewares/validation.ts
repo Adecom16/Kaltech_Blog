@@ -14,8 +14,8 @@ export function isValidEmail(email: string): boolean {
 
 // Validate password strength
 export function isValidPassword(password: string): boolean {
-  // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-  return password.length >= 8;
+  // At least 6 characters
+  return password.length >= 6;
 }
 
 // Sanitize HTML to prevent XSS
@@ -43,7 +43,7 @@ export const validateRegistration = (
   if (!password || !isValidPassword(password)) {
     throw new ServerError(
       400,
-      "Password must be at least 8 characters long"
+      "Password must be at least 6 characters long"
     );
   }
 
