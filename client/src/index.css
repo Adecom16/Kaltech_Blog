@@ -5,10 +5,18 @@
 
 body {
   overflow-y: scroll;
+  background-color: #ffffff;
 }
 
 :root {
-  --borderColor: rgba(242, 242, 242, 1)
+  --borderColor: rgba(242, 242, 242, 1);
+  --primary-gold: #D4AF37;
+  --primary-black: #1a1a1a;
+  --primary-white: #ffffff;
+  --secondary-gold: #F4E4C1;
+  --text-dark: #2c2c2c;
+  --text-gray: #666666;
+  --border-light: #e8e8e8;
 }
 
 .container {

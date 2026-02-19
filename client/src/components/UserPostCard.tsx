@@ -315,7 +315,7 @@ export default function UserPostCard({
                     width: "40px",
                     height: "40px",
                     borderRadius: "50%",
-                    backgroundColor: uploadingAvatar ? "#ccc" : "#1a8917",
+                    backgroundColor: uploadingAvatar ? "#ccc" : "var(--primary-gold)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -332,7 +332,7 @@ export default function UserPostCard({
                   }}
                   onMouseLeave={(e) => {
                     if (!uploadingAvatar) {
-                      e.currentTarget.style.backgroundColor = "#1a8917";
+                      e.currentTarget.style.backgroundColor = "var(--primary-gold)";
                       e.currentTarget.style.transform = "scale(1)";
                     }
                   }}
@@ -374,7 +374,7 @@ export default function UserPostCard({
                     textAlign: "center",
                     marginTop: "12px",
                     fontSize: "13px",
-                    color: "#1a8917",
+                    color: "var(--primary-gold)",
                     fontFamily: "Roboto",
                   }}
                 >
@@ -489,8 +489,8 @@ export default function UserPostCard({
                 padding: "10px 24px",
                 border: "none",
                 borderRadius: "24px",
-                background: saving || !editName.trim() ? "#e6e6e6" : "#1a8917",
-                color: saving || !editName.trim() ? "#999" : "white",
+                background: saving || !editName.trim() ? "#e6e6e6" : "var(--primary-gold)",
+                color: saving || !editName.trim() ? "#999" : "var(--primary-black)",
                 cursor: saving || !editName.trim() ? "not-allowed" : "pointer",
                 fontFamily: "Roboto",
                 fontSize: "14px",

@@ -24,7 +24,7 @@ export default function Notification({
   postTitle,
 }: NotificationPropType) {
   useEffect(() => {
-    document.title = "Notifications - Medium";
+    document.title = "Notifications - KALTECH";
   }, []);
   return (
     <div
@@ -38,7 +38,7 @@ export default function Notification({
     >
       <span
         style={{
-          backgroundColor: read ? "white" : "#1a8917",
+          backgroundColor: read ? "white" : "var(--primary-gold)",
           width: "4px",
           height: "100%",
           borderRadius: "4px",

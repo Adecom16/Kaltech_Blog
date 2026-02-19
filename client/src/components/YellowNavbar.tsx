@@ -7,8 +7,8 @@ export default function YellowNavbar() {
       style={{
         width: "100%",
         height: "80px",
-        backgroundColor: "#ffc017",
-        borderBottom: "1px solid black",
+        background: "linear-gradient(90deg, var(--primary-black) 0%, var(--text-dark) 100%)",
+        borderBottom: "2px solid var(--primary-gold)",
       }}
     >
       <div

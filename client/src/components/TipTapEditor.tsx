@@ -358,7 +358,7 @@ export default function TipTapEditor({ content, onChange, onImageClick }: TipTap
         }
 
         .tiptap-editor img.ProseMirror-selectednode {
-          outline: 3px solid #1a8917;
+          outline: 3px solid var(--primary-gold);
           outline-offset: 2px;
         }
 

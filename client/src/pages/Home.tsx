@@ -30,7 +30,7 @@ function HomeContainer({ tag }: { tag: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  document.title = "Medium";
+  document.title = "KALTECH";
   
   // Authenticated users - personalized feed
   useQuery({
