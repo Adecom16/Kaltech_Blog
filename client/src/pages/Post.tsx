@@ -41,7 +41,7 @@ export default function Post() {
     queryFn: () => httpRequest.get(`${url}/post/${id}`),
     queryKey: ["blog", id],
     onSuccess: (data) => {
-      document.title = data.data.post.title + " - Medium";
+      document.title = data.data.post.title + " - KALTECH";
       setVotes(data.data.post.votes.length ?? 0);
       setTurnBlack(data.data.post.votes.includes(user?._id));
     },
@@ -287,14 +287,14 @@ export default function Post() {
                       lineHeight: "1.5",
                     }}
                   >
-                    Become a member to get unlimited access to all stories on Medium
+                    Become a member to get unlimited access to all stories on KALTECH
                   </p>
                   <button
                     onClick={() => navigate("/signin/in")}
                     style={{
                       padding: "12px 32px",
-                      backgroundColor: "#1a8917",
-                      color: "white",
+                      backgroundColor: "var(--primary-gold)",
+                      color: "var(--primary-black)",
                       border: "none",
                       borderRadius: "24px",
                       fontSize: "15px",
@@ -307,7 +307,7 @@ export default function Post() {
                       e.currentTarget.style.backgroundColor = "#168714";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "#1a8917";
+                      e.currentTarget.style.backgroundColor = "var(--primary-gold)";
                     }}
                   >
                     Sign in
@@ -324,7 +324,7 @@ export default function Post() {
                     <span
                       onClick={() => navigate("/signin/new")}
                       style={{
-                        color: "#1a8917",
+                        color: "var(--primary-gold)",
                         cursor: "pointer",
                         fontWeight: "500",
                       }}
@@ -428,7 +428,7 @@ export default function Post() {
                   onClick={() =>
                     webShare({
                       title: data?.data.post.title,
-                      text: "Check out this Medium blog",
+                      text: "Check out this KALTECH article",
                       url: postUrl,
                     })
                   }
@@ -657,7 +657,7 @@ export default function Post() {
           />
         )}
         {isAuthenticated ? (
-          <TopPicks text="More from Medium" showImg={true} />
+          <TopPicks text="More from KALTECH" showImg={true} />
         ) : (
           <GetStarted
             style={{ width: "83%", marginLeft: "20px" }}

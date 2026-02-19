@@ -68,7 +68,7 @@ export default function User() {
     queryFn: () => httpRequest.get(`${url}/user/${id}`),
     queryKey: ["user", id],
     onSuccess: (data) => {
-      document.title = data.data.name + " - Medium";
+      document.title = data.data.name + " - KALTECH";
       setOptionsTab(() => {
         if (user?._id === id)
           return USER_PAGE_TAB_OPTIONS_AUTH.map((item) => {

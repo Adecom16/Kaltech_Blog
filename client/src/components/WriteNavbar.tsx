@@ -34,7 +34,7 @@ export default function WriteNavbar({
       }}
     >
       <div className="left_write_nav">
-        <Link to="/">{mediumLogo}</Link>
+        <Link to="/" style={{ textDecoration: "none" }}>{mediumLogo}</Link>
       </div>
       <div
         className="right_write_nav"
@@ -100,14 +100,29 @@ export default function WriteNavbar({
             !disabled && onClick();
           }}
           style={{
-            color: "white",
-            backgroundColor: disabled ? "#cbe4ca" : "#1a8917",
+            color: disabled ? "var(--text-gray)" : "var(--primary-black)",
+            backgroundColor: disabled ? "var(--secondary-gold)" : "var(--primary-gold)",
             border: "none",
             outline: "none",
-            padding: "6px 12px",
-            borderRadius: "15px",
-            letterSpacing: "0.2px",
-            cursor: "pointer",
+            padding: "8px 16px",
+            borderRadius: "20px",
+            letterSpacing: "0.5px",
+            cursor: disabled ? "not-allowed" : "pointer",
+            fontWeight: "600",
+            transition: "all 0.2s",
+            boxShadow: disabled ? "none" : "0 2px 8px rgba(212, 175, 55, 0.3)",
+          }}
+          onMouseEnter={(e) => {
+            if (!disabled) {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(212, 175, 55, 0.4)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!disabled) {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(212, 175, 55, 0.3)";
+            }
           }}
         >
           {buttonText}

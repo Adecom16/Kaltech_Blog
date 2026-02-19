@@ -197,8 +197,8 @@ export default function SignInBox({ message, typeOfLogin }: SignInBoxType) {
             disabled={loading}
             style={{
               padding: "12px 16px",
-              backgroundColor: loading ? "#cbe4ca" : "#1a8917",
-              color: "white",
+              backgroundColor: loading ? "var(--secondary-gold)" : "var(--primary-gold)",
+              color: loading ? "var(--text-gray)" : "var(--primary-black)",
               border: "none",
               borderRadius: "24px",
               fontSize: "15px",
@@ -237,8 +237,8 @@ export default function SignInBox({ message, typeOfLogin }: SignInBoxType) {
             marginTop: "22px",
           }}
         >
-          Click "{typeOfLogin}" to agree to Medium's Terms of Service and
-          acknowledge that Medium's Privacy Policy applies to you.
+          Click "{typeOfLogin}" to agree to KALTECH's Terms of Service and
+          acknowledge that KALTECH's Privacy Policy applies to you.
         </p>
       </div>
     );
@@ -282,7 +282,7 @@ export default function SignInBox({ message, typeOfLogin }: SignInBoxType) {
           No account?{" "}
           <Link
             style={{
-              color: "#1a8917",
+              color: "var(--primary-gold)",
               textDecoration: "none",
               fontWeight: "bold",
               fontSize: "14px",
@@ -297,7 +297,7 @@ export default function SignInBox({ message, typeOfLogin }: SignInBoxType) {
           Already have an account?{" "}
           <Link
             style={{
-              color: "#1a8917",
+              color: "var(--primary-gold)",
               textDecoration: "none",
               fontWeight: "bold",
               fontSize: "14px",

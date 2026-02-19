@@ -59,7 +59,7 @@ export const emailRegister = asyncHandler(async (req, res, next) => {
   // Send welcome email
   await mail(
     email,
-    "Welcome to Medium Clone!",
+    "Welcome to KALTECH!",
     `<h1>Welcome ${name}!</h1><p>Thank you for joining our community.</p>`
   );
 

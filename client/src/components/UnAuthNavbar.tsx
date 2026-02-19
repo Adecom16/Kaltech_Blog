@@ -14,11 +14,12 @@ export default function UnAuthNavbar() {
     <nav
       style={{
         height: "56px",
-        borderBottom: "solid 1px rgba(242, 242, 242, 1)",
+        borderBottom: "solid 1px var(--border-light)",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
+        backgroundColor: "var(--primary-white)",
       }}
     >
       <div
@@ -31,7 +32,7 @@ export default function UnAuthNavbar() {
           gap: "17px",
         }}
       >
-        <Link to="/">{mediumLogo}</Link>
+        <Link to="/" style={{ textDecoration: "none" }}>{mediumLogo}</Link>
         <Search />
       </div>
       <div
@@ -74,14 +75,25 @@ export default function UnAuthNavbar() {
           <Link
             to="/signin/new"
             style={{
-              backgroundColor: "#1a8917",
-              color: "white",
+              backgroundColor: "var(--primary-gold)",
+              color: "var(--primary-black)",
               border: "none",
               outline: "none",
-              borderRadius: "17px",
-              padding: "8px 12px",
+              borderRadius: "20px",
+              padding: "10px 20px",
               fontSize: "14px",
               textDecoration: "none",
+              fontWeight: "600",
+              transition: "all 0.2s",
+              boxShadow: "0 2px 8px rgba(212, 175, 55, 0.3)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(212, 175, 55, 0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(212, 175, 55, 0.3)";
             }}
           >
             Sign up
@@ -89,15 +101,23 @@ export default function UnAuthNavbar() {
           <Link
             to="/signin/in"
             style={{
-              border: "none",
+              border: "1px solid var(--primary-gold)",
               outline: "transparent",
               background: "transparent",
-              borderRadius: "17px",
-              padding: "8px 12px",
-              color: "gray",
+              borderRadius: "20px",
+              padding: "9px 20px",
+              color: "var(--primary-black)",
               marginRight: "-5px",
               fontSize: "14px",
               textDecoration: "none",
+              fontWeight: "600",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--secondary-gold)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
             }}
           >
             Sign In

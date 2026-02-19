@@ -289,12 +289,12 @@ export function GetStarted({
         ...style,
       }}
     >
-      <p style={{ marginBottom: "12px", ...topStyle }}>Get started on Medium</p>
+      <p style={{ marginBottom: "12px", ...topStyle }}>Get started on KALTECH</p>
       <Link
         to="/signin/new"
         style={{
-          backgroundColor: "#1a8917",
-          color: "white",
+          backgroundColor: "var(--primary-gold)",
+          color: "var(--primary-black)",
           border: "none",
           outline: "none",
           borderRadius: "17px",

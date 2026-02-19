@@ -20,11 +20,12 @@ export default function Navbar({
     <nav
       style={{
         height: "56px",
-        borderBottom: "solid 1px rgba(242, 242, 242, 1)",
+        borderBottom: "solid 1px var(--border-light)",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
+        backgroundColor: "var(--primary-white)",
       }}
     >
       <div
@@ -37,7 +38,7 @@ export default function Navbar({
           gap: "17px",
         }}
       >
-        <Link to="/">{mediumLogo}</Link>
+        <Link to="/" style={{ textDecoration: "none" }}>{mediumLogo}</Link>
         <Search />
       </div>
       <div
@@ -58,12 +59,15 @@ export default function Navbar({
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
-            color: "gray",
+            color: "var(--text-gray)",
             gap: "8px",
             textDecoration: "none",
+            transition: "color 0.2s",
           }}
+          onMouseEnter={(e) => e.currentTarget.style.color = "var(--primary-gold)"}
+          onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-gray)"}
         >
-          <span style={{ color: "rgba(117, 117, 117, 1)" }}>
+          <span style={{ color: "inherit" }}>
             {writeBlogIcon}
           </span>
           <p style={{ fontSize: "14.5px", marginTop: "-4px" }}>Write</p>
@@ -72,10 +76,13 @@ export default function Navbar({
           <Link
             to="/notifications"
             style={{
-              color: "rgba(117, 117, 117, 1)",
+              color: "var(--text-gray)",
               textDecoration: "none",
               position: "relative",
+              transition: "color 0.2s",
             }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "var(--primary-gold)"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-gray)"}
           >
             {NotificationIcon}
             {notificationsCount > 0 && (
@@ -85,10 +92,11 @@ export default function Navbar({
                   position: "absolute",
                   top: "-15px",
                   right: "-5px",
-                  backgroundColor: "#1a8917",
-                  color: "white",
+                  backgroundColor: "var(--primary-gold)",
+                  color: "var(--primary-black)",
                   padding: "3px 3.75px",
                   borderRadius: "4px",
+                  fontWeight: "600",
                 }}
               >
                 {notificationsCount}

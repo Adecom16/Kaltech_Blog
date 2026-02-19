@@ -48,7 +48,7 @@ export default function Write() {
 
   useEffect(() => {
     hideNavbar(true);
-    document.title = "New story -Medium";
+    document.title = "New Story - KALTECH";
     
     return () => {
       hideNavbar(false);
@@ -283,7 +283,7 @@ export default function Write() {
           />
         </Dialog>
 
-        {/* Image Insert Dialog - Medium Style with Upload */}
+        {/* Image Insert Dialog - KALTECH Style with Upload */}
         <Dialog
           open={showImageDialog}
           onClose={() => {
@@ -356,8 +356,8 @@ export default function Write() {
                   transition: "all 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#1a8917";
-                  e.currentTarget.style.backgroundColor = "#f0f9f0";
+                  e.currentTarget.style.borderColor = "var(--primary-gold)";
+                  e.currentTarget.style.backgroundColor = "var(--secondary-gold)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "#e6e6e6";
@@ -380,7 +380,7 @@ export default function Write() {
                       style={{
                         margin: 0,
                         fontSize: "14px",
-                        color: "#1a8917",
+                        color: "var(--primary-gold)",
                         fontFamily: "Roboto",
                         fontWeight: "500",
                       }}
@@ -487,8 +487,8 @@ export default function Write() {
                     padding: "10px 24px",
                     border: "none",
                     borderRadius: "24px",
-                    background: uploadingImage ? "#e6e6e6" : "#1a8917",
-                    color: uploadingImage ? "#999" : "white",
+                    background: uploadingImage ? "#e6e6e6" : "var(--primary-gold)",
+                    color: uploadingImage ? "#999" : "var(--primary-black)",
                     cursor: uploadingImage ? "not-allowed" : "pointer",
                     fontFamily: "Roboto",
                     fontSize: "14px",
@@ -685,8 +685,8 @@ const DialogComponent = ({
               }}
               style={{
                 marginTop: "18px",
-                color: "white",
-                backgroundColor: tags.length > 0 ? "#1a8917" : "#cbe4ca",
+                color: tags.length > 0 ? "var(--primary-black)" : "var(--text-gray)",
+                backgroundColor: tags.length > 0 ? "var(--primary-gold)" : "var(--secondary-gold)",
                 border: "none",
                 outline: "transparent",
                 width: "fit-content",
