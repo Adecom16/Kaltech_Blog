@@ -1,17 +1,13 @@
 export const kaltechLogo = (
-  <div style={{ 
-    fontFamily: "'Poppins', sans-serif", 
-    fontSize: "28px", 
-    fontWeight: "700",
-    letterSpacing: "1.5px",
-    userSelect: "none",
-    background: "linear-gradient(135deg, #D4AF37 0%, #1a1a1a 100%)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    backgroundClip: "text",
-  }}>
-    KALTECH
-  </div>
+  <img 
+    src="/KC-Blk Logo.png" 
+    alt="KALTECH" 
+    style={{ 
+      height: "40px",
+      width: "auto",
+      userSelect: "none",
+    }} 
+  />
 );
 
 export const mediumLogo = kaltechLogo;

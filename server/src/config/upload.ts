@@ -1,24 +1,25 @@
 import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import path from "path";
-import fs from "fs";
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, "../../uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename: timestamp-randomstring-originalname
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    const nameWithoutExt = path.basename(file.originalname, ext);
-    cb(null, `${nameWithoutExt}-${uniqueSuffix}${ext}`);
+// Configure Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: "kaltech-uploads", // Folder name in Cloudinary
+      allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"],
+      transformation: [{ width: 1200, height: 1200, crop: "limit" }], // Optional: resize large images
+      public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}`, // Unique filename
+    };
   },
 });
 
@@ -43,3 +44,5 @@ export const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB max file size
   },
 });
+
+export { cloudinary };

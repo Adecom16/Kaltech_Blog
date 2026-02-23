@@ -6,7 +6,10 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts"
+    "dev": "nodemon src/server.ts",
+    "clear-blogs": "ts-node scripts/clearBlogs.ts",
+    "seed-blogs": "ts-node scripts/seedBlogsWithImages.ts",
+    "reset-blogs": "npm run clear-blogs && npm run seed-blogs"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +17,7 @@
   "dependencies": {
     "axios": "^1.3.4",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "envalid": "^7.3.1",
@@ -23,6 +27,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.1",
     "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "qs": "^6.11.1",
     "socket.io": "^4.6.1"
   },
