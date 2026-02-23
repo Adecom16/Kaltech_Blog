@@ -85,6 +85,10 @@ export default function StoryCard({
               }}
               src={image}
               alt=""
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=55&h=55&fit=crop";
+              }}
             />
           </Link>
         )}
