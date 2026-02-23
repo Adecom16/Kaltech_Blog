@@ -33,7 +33,7 @@ function HomeContainer({ tag }: { tag: string }) {
   document.title = "KALTECH";
   
   // Authenticated users - personalized feed
-  useQuery({
+  const { refetch: refetchAuth } = useQuery({
     queryFn: () => {
       console.log('Fetching home posts (authenticated)...');
       console.log('Access token:', localStorage.getItem('access_token'));
@@ -41,6 +41,9 @@ function HomeContainer({ tag }: { tag: string }) {
     },
     queryKey: ["home", "authenticated"],
     enabled: tag == undefined && isAuthenticated,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     onSuccess: (data) => {
       console.log('Home posts loaded:', data.data);
       const postsData = Array.isArray(data.data) ? data.data : [];
@@ -57,13 +60,16 @@ function HomeContainer({ tag }: { tag: string }) {
   });
   
   // Unauthenticated users - public feed
-  useQuery({
+  const { refetch: refetchPublic } = useQuery({
     queryFn: () => {
       console.log('Fetching public posts (unauthenticated)...');
       return httpRequest.get(`${url}/post/public`);
     },
     queryKey: ["home", "public"],
     enabled: tag == undefined && !isAuthenticated,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     onSuccess: (data) => {
       console.log('Public posts loaded:', data.data);
       const postsData = Array.isArray(data.data) ? data.data : [];
@@ -78,13 +84,16 @@ function HomeContainer({ tag }: { tag: string }) {
     },
   });
   
-  useQuery({
+  const { refetch: refetchTopic } = useQuery({
     queryFn: () =>
       httpRequest.get(
         `${url}/post/${tag === "Following" ? "users" : "topic"}/${tag}`
       ),
     queryKey: ["home", "topic", tag],
     enabled: tag != undefined,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     onSuccess: (data) => {
       const postsData = Array.isArray(data.data) ? data.data : [];
       setposts(postsData);

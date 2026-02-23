@@ -315,6 +315,10 @@ export default function Post({
               style={{ width: "112px", height: "112px", objectFit: "cover" }}
               src={image}
               alt=""
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=112&h=112&fit=crop";
+              }}
             />
           )}
         </Link>

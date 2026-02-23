@@ -18,7 +18,23 @@ const isProd = !env.DEV;
 if (isProd) {
   app.use(logger);
 }
-app.use(cors());
+
+// CORS configuration to handle multiple origins
+const allowedOrigins = env.CLIENT_URL.split(',').map(url => url.trim());
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -34,7 +50,8 @@ const ONLINE_USER_TO_SOCKET_ID_MAP = new Map<string, string>();
 
 const io = new Server(server, {
   cors: {
-    origin: env.CLIENT_URL,
+    origin: env.CLIENT_URL.split(',').map(url => url.trim()),
+    credentials: true
   },
 });
 
