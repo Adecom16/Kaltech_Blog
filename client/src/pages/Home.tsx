@@ -43,13 +43,15 @@ function HomeContainer({ tag }: { tag: string }) {
     enabled: tag == undefined && isAuthenticated,
     onSuccess: (data) => {
       console.log('Home posts loaded:', data.data);
-      setposts(data.data);
+      const postsData = Array.isArray(data.data) ? data.data : [];
+      setposts(postsData);
       setLoading(false);
     },
     onError: (err: any) => {
       console.error("Failed to fetch posts:", err);
       console.error("Error response:", err.response);
       setError(err.response?.data?.message || "Failed to load posts");
+      setposts([]);
       setLoading(false);
     },
   });
@@ -64,12 +66,14 @@ function HomeContainer({ tag }: { tag: string }) {
     enabled: tag == undefined && !isAuthenticated,
     onSuccess: (data) => {
       console.log('Public posts loaded:', data.data);
-      setposts(data.data);
+      const postsData = Array.isArray(data.data) ? data.data : [];
+      setposts(postsData);
       setLoading(false);
     },
     onError: (err: any) => {
       console.error("Failed to fetch public posts:", err);
       setError(err.response?.data?.message || "Failed to load posts");
+      setposts([]);
       setLoading(false);
     },
   });
@@ -82,12 +86,14 @@ function HomeContainer({ tag }: { tag: string }) {
     queryKey: ["home", "topic", tag],
     enabled: tag != undefined,
     onSuccess: (data) => {
-      setposts(data.data);
+      const postsData = Array.isArray(data.data) ? data.data : [];
+      setposts(postsData);
       setLoading(false);
     },
     onError: (err: any) => {
       console.error("Failed to fetch posts:", err);
       setError(err.response?.data?.message || "Failed to load posts");
+      setposts([]);
       setLoading(false);
     },
   });
@@ -149,6 +155,11 @@ function HomeContainer({ tag }: { tag: string }) {
             </div>
           ) : (
             posts.map((item) => {
+              // Skip posts with missing data
+              if (!item || !item.user || !item.post) {
+                return null;
+              }
+              
               return (
                 <Post
                   showUserList={true}
@@ -160,7 +171,7 @@ function HomeContainer({ tag }: { tag: string }) {
                   username={item.user.name}
                   userId={item.user._id}
                   image={item.post.image}
-                  tag={item.post.tags.at(0)}
+                  tag={item.post.tags?.at(0)}
                   userImage={item.user.avatar}
                   key={item.post._id}
                   summary={item.post.summary}
