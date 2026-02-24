@@ -117,7 +117,8 @@ export default function UserPostCard({
       });
 
       if (response.data.success) {
-        const imageUrl = `${url}${response.data.url}`;
+        // Cloudinary returns full URL, don't prepend base URL
+        const imageUrl = response.data.url;
         setEditAvatar(imageUrl);
         handleToast && handleToast("Image uploaded successfully!");
       }
