@@ -9,7 +9,8 @@
     "dev": "nodemon src/server.ts",
     "clear-blogs": "ts-node scripts/clearBlogs.ts",
     "seed-blogs": "ts-node scripts/seedBlogsWithImages.ts",
-    "reset-blogs": "npm run clear-blogs && npm run seed-blogs"
+    "reset-blogs": "npm run clear-blogs && npm run seed-blogs",
+    "fix-images": "ts-node scripts/fixImageUrls.ts"
   },
   "keywords": [],
   "author": "",

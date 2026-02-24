@@ -1,0 +1,98 @@
+const mongoose = require('mongoose');
+require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+
+// MongoDB connection
+const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kaltech';
+
+// Post schema
+const postSchema = new mongoose.Schema({}, { strict: false });
+const Post = mongoose.model('Post', postSchema);
+
+async function fixImageUrls() {
+  try {
+    console.log('🔌 Connecting to MongoDB...');
+    await mongoose.connect(MONGODB_URI);
+    console.log('✅ Connected to MongoDB\n');
+
+    // Find all posts with malformed image URLs
+    const postsWithBrokenImages = await Post.find({
+      image: { $regex: 'onrender.com' }
+    });
+
+    console.log(`📊 Found ${postsWithBrokenImages.length} posts with malformed image URLs\n`);
+
+    if (postsWithBrokenImages.length === 0) {
+      console.log('✨ No posts need fixing!');
+      await mongoose.disconnect();
+      process.exit(0);
+    }
+
+    let fixedCount = 0;
+    let replacedCount = 0;
+
+    for (const post of postsWithBrokenImages) {
+      const oldUrl = post.image;
+      let newUrl = oldUrl;
+
+      console.log(`📝 Post ID: ${post._id}`);
+      console.log(`   Old: ${oldUrl.substring(0, 80)}...`);
+
+      // Try to extract the Cloudinary URL
+      if (oldUrl.includes('res.cloudinary.com')) {
+        // Find the position of res.cloudinary.com
+        const cloudinaryIndex = oldUrl.indexOf('res.cloudinary.com');
+        
+        // Check if there's https:// or https// before it
+        let startIndex = oldUrl.lastIndexOf('https://', cloudinaryIndex);
+        if (startIndex === -1) {
+          startIndex = oldUrl.lastIndexOf('https//', cloudinaryIndex);
+        }
+        
+        if (startIndex !== -1) {
+          // Extract from https:// or https// onwards
+          newUrl = oldUrl.substring(startIndex);
+          // Fix missing colon if needed
+          newUrl = newUrl.replace('https//', 'https://');
+          
+          console.log(`   ✅ Extracted Cloudinary URL`);
+          fixedCount++;
+        } else {
+          // Can't extract, use placeholder
+          newUrl = 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop';
+          console.log(`   ⚠️  Using placeholder`);
+          replacedCount++;
+        }
+      } else {
+        // No Cloudinary URL found, use placeholder
+        newUrl = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop';
+        console.log(`   ⚠️  Using placeholder`);
+        replacedCount++;
+      }
+
+      console.log(`   New: ${newUrl.substring(0, 80)}...\n`);
+
+      // Update the post
+      await Post.updateOne(
+        { _id: post._id },
+        { $set: { image: newUrl } }
+      );
+    }
+
+    console.log('='.repeat(60));
+    console.log('✨ Image URL Fix Complete!');
+    console.log('='.repeat(60));
+    console.log(`📊 Total posts processed: ${postsWithBrokenImages.length}`);
+    console.log(`✅ URLs extracted and fixed: ${fixedCount}`);
+    console.log(`🖼️  Replaced with placeholders: ${replacedCount}`);
+    console.log('='.repeat(60));
+
+    await mongoose.disconnect();
+    console.log('\n✅ Disconnected from MongoDB');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error fixing image URLs:', error);
+    process.exit(1);
+  }
+}
+
+fixImageUrls();
